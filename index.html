@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Stugers</title>
+	<style>
+		* {
+			font-family: sans-serif;
+		}
+	</style>
+</head>
+<body>
+
+<center><h1>Stugers Table Generator</h1></center>
+
+<h2>Form dataset</h2>
+<p>Masukkan angka di setiap baris</p>
+<textarea id="dataset_form" rows="20" cols="25" placeholder="1
+3
+5
+31
+57
+8
+43
+86
+2"></textarea>
+<br>
+<button onclick="countAndGenerate()">Hitung</button>
+
+<section id="hasil_hitung" style="display: none;">
+	<h2>Tabel Distribusi Frekuensi</h2>
+	<table id="tabelDisFreq" border="1">
+	<tr>
+		<th>Kelas</th>
+		<th>Interval Kelas</th>
+		<th>Frekuensi</th>
+	</tr>
+	</table>
+
+	<br><br>
+	<h2>Informasi</h2>
+	<p>Total data: <span id="totaldata"></span></p>
+	<p>Data terkecil: <span id="dataTerkecil"></span></p>
+	<p>Data terbesar: <span id="dataTerbesar"></span></p>
+	<p>Jumlah kelas: <span id="jumlahKelas"></span></p>
+	<p>Jumlah rentang: <span id="jumlahRentang"></span></p>
+	<p>Interval kelas: <span id="jumlahInterval"></span></p>
+</section>
+
+
+<script>
+	function hitungKelas(n) {
+		return Math.ceil(1+3.3*Math.log10(n))
+	}
+
+	function hitungRentang(big,small) {
+		return big-small
+	}
+
+	function hitungInterval(rentang, kelas) {
+		return Math.ceil(rentang/kelas)
+	}
+
+	function buatTabelDisFreq(DATASET, jumlahKelas, jumlahRentang, jumlahInterval, dataTerkecil, dataTerbesar) {
+		var minInterval = Math.floor(dataTerkecil / 10) * 10;
+		var maxInterval = Math.floor(dataTerbesar / 10) * 10;
+
+		var x = minInterval
+		var y = x+jumlahInterval
+		for (var i = 1; i <= jumlahKelas; i++) {
+
+			var frekuensi = 0
+			for (var j = 0; j < DATASET.length; j++) {
+				if (DATASET[j] >= x && DATASET[j] <= y) {
+				  frekuensi++
+				}
+			}
+
+			console.log(i, x+" - "+y, frekuensi)
+
+			var table = document.getElementById("tabelDisFreq")
+			var row = table.insertRow(i)
+			var c_kelas = row.insertCell(0)
+			var c_interval_kelas = row.insertCell(1)
+			var c_frekuensi = row.insertCell(2)
+
+			c_kelas.innerHTML = i
+			c_interval_kelas.innerHTML = x+" - "+y
+			c_frekuensi.innerHTML = frekuensi
+
+
+			x+=jumlahInterval+1
+			y+=jumlahInterval+1
+		}
+	}
+
+	function resetTable() {
+		var table = document.getElementById("tabelDisFreq")
+		var panjangBaris = table.rows.length
+
+		if (panjangBaris > 1) {
+			var kolomAda = true
+			while(kolomAda) {
+				table.deleteRow(1)
+				var sisaKolom = document.getElementById("tabelDisFreq").rows.length
+				if (sisaKolom == 2) {
+					kolomAda = false
+				}
+			}
+		}
+	}
+
+	function countAndGenerate() {
+		resetTable()
+
+		var DATASET = []
+		var lines = document.getElementById("dataset_form").value.split("\n");
+		for(var i = 0;i < lines.length;i++) {
+			DATASET[i] = parseInt(lines[i])
+		}
+		console.log(DATASET)
+
+		var dataTerkecil = Math.min(...DATASET)
+		var dataTerbesar = Math.max(...DATASET)
+		var totaldata = DATASET.length
+
+		var jumlahKelas = hitungKelas(totaldata)
+		var jumlahRentang = hitungRentang(dataTerbesar, dataTerkecil)
+		var jumlahInterval = hitungInterval(jumlahRentang, jumlahKelas)
+
+		buatTabelDisFreq(DATASET, jumlahKelas, jumlahRentang, jumlahInterval, dataTerkecil, dataTerbesar)
+
+		document.getElementById("dataTerkecil").innerHTML = dataTerkecil
+		document.getElementById("dataTerbesar").innerHTML = dataTerbesar
+		document.getElementById("totaldata").innerHTML = totaldata
+		document.getElementById("jumlahKelas").innerHTML = jumlahKelas
+		document.getElementById("jumlahRentang").innerHTML = jumlahRentang
+		document.getElementById("jumlahInterval").innerHTML = jumlahInterval
+
+		document.getElementById("hasil_hitung").style.display = "block"
+	}
+</script>
+
+</body>
+</html>
